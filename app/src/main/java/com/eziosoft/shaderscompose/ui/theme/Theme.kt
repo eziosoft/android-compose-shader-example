@@ -32,7 +32,7 @@ fun ShadersComposeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
+    val colors = if (true) {
         DarkColorPalette
     } else {
         LightColorPalette
