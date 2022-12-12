@@ -4,15 +4,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.RuntimeShader
 import android.os.Bundle
+import android.widget.Space
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.withInfiniteAnimationFrameMillis
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
@@ -32,30 +30,59 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val photo = BitmapFactory.decodeResource(resources, R.drawable.photo)
-        val shader = RuntimeShader(SHADER1)
+        val shader = RuntimeShader(SHADER7)
 
         setContent {
             ShadersComposeTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = Color.Black
                 ) {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        Shader(photo, shader)
+                    Box(modifier = Modifier.background(Color.White).fillMaxSize()) {
+//                        Shader(photo, shader)
 
+                        val time by produceState(0f) {
+                            while (true) {
+                                withInfiniteAnimationFrameMillis {
+                                    value = it / 1000f
+                                }
+                            }
+                        }
                         Column(
                             modifier = Modifier
+                                .padding(20.dp)
+                                .background(Color.White)
                                 .align(Alignment.Center)
-                                .clip(RoundedCornerShape(20.dp))
-                                .background(Color.White.copy(alpha = 0.8f)),
+                                .onSizeChanged { size ->
+                                    shader.setFloatUniform(
+                                        "iResolution",
+                                        size.width.toFloat(),
+                                        size.height.toFloat()
+                                    )
+                                }
+                                .graphicsLayer {
+                                    clip = true
+                                    shader.setFloatUniform("iTime", time)
+                                    renderEffect = android.graphics.RenderEffect
+                                        .createRuntimeShaderEffect(shader, "composable")
+                                        .asComposeRenderEffect()
+                                },
                             horizontalAlignment = Alignment.CenterHorizontally,
 
                             ) {
 
-                            TextField(value = "Name", onValueChange = {})
-                            TextField(value = "Surname", onValueChange = {})
-                            TextField(value = "Age", onValueChange = {})
+                            OutlinedTextField(
+                                modifier = Modifier.padding(20.dp).background(Color.White),
+                                value = "Name",
+                                onValueChange = {})
+                            OutlinedTextField(
+                                modifier = Modifier.padding(20.dp).background(Color.White),
+                                value = "Surname",
+                                onValueChange = {})
+                            OutlinedTextField(
+                                modifier = Modifier.padding(20.dp).background(Color.White),
+                                value = "Age",
+                                onValueChange = {})
                             Button(onClick = { /*TODO*/ }) {
                                 Text("Submit")
                             }
